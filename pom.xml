@@ -11,6 +11,7 @@
     <modules>
         <module>composite</module>
         <module>state</module>
+        <module>composite</module>
     </modules>
 
     <properties>

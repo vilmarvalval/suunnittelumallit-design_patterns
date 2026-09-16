@@ -1,4 +1,4 @@
-package org.composite;
+package org.example;
 
 import java.util.*;
 

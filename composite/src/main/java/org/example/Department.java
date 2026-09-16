@@ -1,4 +1,4 @@
-package org.composite;
+package org.example;
 
 public class Department extends Organization {
     public Department(String name) {
