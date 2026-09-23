@@ -12,6 +12,7 @@
         <module>composite</module>
         <module>state</module>
         <module>composite</module>
+        <module>template-method</module>
     </modules>
 
     <properties>
