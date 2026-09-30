@@ -3,14 +3,20 @@ package org.template_method;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Scanner;
+import java.util.*;
 
 public class YahtzeeGame extends GameTemplate{
     private final Scanner scan = new Scanner(System.in);
-    String[] die = {"⚀", "⚁", "⚂", "⚃", "⚄", "⚅"};
+    String[] dieFaces = {"⚀", "⚁", "⚂", "⚃", "⚄", "⚅"};
     ArrayList<Die> playerDice = new ArrayList<>(5);
+    int[] counter = {0, 0, 0, 0, 0, 0};
+    int[] clearList = {0, 0, 0, 0, 0, 0};
+
+    int[] chanceL = {1, 1, 1, 1, 1, 0};
+    int[] chanceR = {0, 1, 1, 1, 1, 1};
+
+    Map<String, Integer> pickScore = new HashMap<>();
+
     ArrayList<Player> players = new ArrayList<>();
     ArrayList<Player> scoreBoard = new ArrayList<>();
 
@@ -19,6 +25,7 @@ public class YahtzeeGame extends GameTemplate{
     int throwCount=0;
     String ansW;
     int score;
+    int bonus;
     int dieValue;
 
     boolean badInput;
@@ -32,6 +39,7 @@ public class YahtzeeGame extends GameTemplate{
         players.clear();
         ansW="";
         score = 0;
+        bonus = 0;
 
         for (int i = 0; i < playerCount; i++) {
             Player p = new Player((i+1)+"", i);
@@ -46,6 +54,8 @@ public class YahtzeeGame extends GameTemplate{
 
     @Override
     public void playTurn(int player) {
+        bonus= players.get(player).getSpc_score();
+
         playerDice.clear();
         for (int i = 0; i < 5; i++) {
             playerDice.add(new Die());
@@ -59,15 +69,24 @@ public class YahtzeeGame extends GameTemplate{
         //TODO create input command to skip turn(return -1)/exit at any point?
         throwDice();
 
-        System.out.println("\nCounting score...");
+        System.out.println("\nChecking combinations...");
         countScore();
 
-        System.out.println( "Player "+players.get(player).getName()+"'s score: +"+score+
+        //TODO make player pick which score he wants?
+        System.out.println(pickScore);
+        score=0;
+        pickScore.forEach((k,v)->{
+            score+=v;
+        });
+        pickScore.clear();
+
+        System.out.println( "Player "+players.get(player).getName()+"'s score: +"+(score+bonus)+
                             "\n(Enter anything to continue)");
         waitForInput();
 
         Player p = players.get(player);
         p.setScore(p.getScore() + score);
+        p.setSpc_score(p.getSpc_score() + bonus);
 
         playerDice.clear();
         throwCount=0;
@@ -136,9 +155,9 @@ public class YahtzeeGame extends GameTemplate{
             for (int i = 0; i < playerDice.toArray().length; i++) {
                 dieValue= playerDice.get(i).getValue();
                 if (playerDice.get(i).isLocked()) {
-                    System.out.println((i + 1) + ". die: " + die[dieValue - 1] + " (" + dieValue + ")");
+                    System.out.println((i + 1) + ". die: " + dieFaces[dieValue - 1] + " (" + dieValue + ")");
                 } else {
-                    System.out.println((i + 1) + ". die: " + die[dieValue - 1] + " (" + dieValue + ") *");
+                    System.out.println((i + 1) + ". die: " + dieFaces[dieValue - 1] + " (" + dieValue + ") *");
                 }
             }
 
@@ -163,18 +182,130 @@ public class YahtzeeGame extends GameTemplate{
     }
 
     public void countScore(){
-        //TODO an actual Yahtzee score counter.
+        score=0;
+        //count amount of each die value
+        counter= clearList;
+        for (Die playerThrow : playerDice) {
+            counter[playerThrow.getValue()-1]++;
+            //score += playerThrow.getValue();
+        }
+
+        //System.out.println(Arrays.toString(counter));
+        //check for chance
+        if (Arrays.equals(counter, chanceL) || Arrays.equals(counter, chanceR)) {
+            System.out.println("Chance!");
+            //Same as in 3 or 4 of a kind; adds up all dice values.
+            score = 0;
+            for (Die die : playerDice) {
+                score += die.getValue();
+            }
+            pickScore.put("Chance", score);
+        }
         score=0;
 
-        for (Die playerThrow : playerDice) {
-            score += playerThrow.getValue();
+        //check for large straight
+        for (int l = 0; l <= 1; l++) {
+            if (counter[l] > 0 &&
+                    counter[l + 1] > 0 &&
+                    counter[l + 2] > 0 &&
+                    counter[l + 3] > 0) {
+
+                //always gives 40p
+                System.out.println("Large straight!!!");
+                System.out.println((l+1)+" "+ (l+2) +" "+ (l+3) +" "+(l+4));
+                pickScore.put("Large straight: "+(l+1)+" "+ (l+2) +" "+ (l+3) +" "+(l+4), 40);
+            }
         }
+
+        //check for small straight
+        for (int s = 0; s <= 2; s++) {
+            if (counter[s] > 0 &&
+                    counter[s + 1] > 0 &&
+                    counter[s + 2] > 0) {
+
+                //always gives 30p
+                System.out.println("Small straight!!");
+                System.out.println((s+1)+" "+ (s+2) +" "+ (s+3));
+                pickScore.put("Small straight: "+ (s+1)+" "+ (s+2) +" "+ (s+3), 30);
+            }
+        }
+        //TODO change into a while loop to allow loop interruption? Is it necessary?
+        //TODO fix whatever's causing this this is vvvvv
+        /*
+             Rethrowing...
+            1. die: ⚄ (5)
+            2. die: ⚄ (5)
+            3. die: ⚁ (2) *
+            4. die: ⚄ (5)
+            5. die: ⚅ (6)
+
+            Checking combinations...
+            2's!
+            YAHTZEE!!!!
+            5's!
+            Three of a kind!
+            {5's=15, YAHTZEE!!!!=0, 2's=10, Three of a kind 4=23}
+            Player 1's score: +48
+            (Enter anything to continue)
+
+         */
+        for (int i = 0; i < counter.length; i++) {
+            if (counter[i]>2){
+                System.out.println((i+1)+"'s!");
+                //Ones, Twos, Threes, Fours, Fives and Sixes. Adds 2 * die's value to points.
+                pickScore.put((i+1)+"'s",(i+1)*counter[i]);
+            }
+            //check for others
+            switch (counter[i]){
+                case 0, 1, 2:
+                    break;
+                case 3: //3 dice of the same number.
+                    //First check for full house
+                    for (Integer integer : counter) {
+                        if (integer == 2) {
+                            System.out.println("Full House!");
+                            //full house always gives 25
+                            pickScore.put("Full House!", 25);
+                        }
+                    }
+                    System.out.println("Three of a kind!");
+                    //Adds up all the dice.
+                    score=0;
+                    for (Die die : playerDice) {
+                        score += die.getValue();
+                    }
+                    pickScore.put("Three of a kind "+i,score);
+                    break;
+                case 4: //4 dice with the same number.
+                    System.out.println("Four of a kind!");
+                    //Adds up all the dice.
+                    score=0;
+                    for (Die die : playerDice) {
+                        score += die.getValue();
+                    }
+                    pickScore.put("Four of a kind "+i,score);
+                    break;
+                case 5: //all 5 dice have the same number.
+                    System.out.println("YAHTZEE!!!!");
+                    //Five of a kind grants 50 points no matter what the values of the dice are,
+                    // 100 if 50 has already been given previously.
+                    pickScore.put("YAHTZEE!!!!", 0);
+                    if (bonus>=50){
+                        System.out.println("Yahtzee bonus!");
+                        bonus=100;
+                    }
+                    break;
+            }
+        }
+
+        counter = clearList;
+        //System.out.println(pickScore);
     }
 
     public void printDice(){
         for (int i = 0; i < playerDice.size(); i++) {
             dieValue= playerDice.get(i).getValue();
-            System.out.println((i+1)+". die: "+die[dieValue-1]+" ("+dieValue+")");
+            System.out.println((i+1)+". die: "+ dieFaces[dieValue-1]+" ("+dieValue+")");
         }
     }
 
@@ -217,5 +348,4 @@ public class YahtzeeGame extends GameTemplate{
             }
         }
     }
-
 }
