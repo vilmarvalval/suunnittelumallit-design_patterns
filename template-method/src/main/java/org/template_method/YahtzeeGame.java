@@ -10,7 +10,6 @@ public class YahtzeeGame extends GameTemplate{
     String[] dieFaces = {"⚀", "⚁", "⚂", "⚃", "⚄", "⚅"};
     ArrayList<Die> playerDice = new ArrayList<>(5);
     int[] counter = {0, 0, 0, 0, 0, 0};
-    int[] clearList = {0, 0, 0, 0, 0, 0};
 
     int[] chanceL = {1, 1, 1, 1, 1, 0};
     int[] chanceR = {0, 1, 1, 1, 1, 1};
@@ -184,7 +183,8 @@ public class YahtzeeGame extends GameTemplate{
     public void countScore(){
         score=0;
         //count amount of each die value
-        counter= clearList;
+        Arrays.fill(counter, 0);
+
         for (Die playerThrow : playerDice) {
             counter[playerThrow.getValue()-1]++;
             //score += playerThrow.getValue();
@@ -229,11 +229,8 @@ public class YahtzeeGame extends GameTemplate{
                 pickScore.put("Small straight: "+ (s+1)+" "+ (s+2) +" "+ (s+3), 30);
             }
         }
-        //TODO change into a while loop to allow loop interruption? Is it necessary?
-        //TODO clear counter properly.
-        // Why on earth does counter = clearList; make the lists identical instead overwriting counter with clearList???
         for (int i = 0; i < counter.length; i++) {
-            if (counter[i]>2){
+            if (counter[i]>=2){
                 System.out.println((i+1)+"'s!");
                 //Ones, Twos, Threes, Fours, Fives and Sixes. Adds 2 * die's value to points.
                 pickScore.put((i+1)+"'s",(i+1)*counter[i]);
@@ -281,7 +278,7 @@ public class YahtzeeGame extends GameTemplate{
             }
         }
 
-        counter = clearList;
+        Arrays.fill(counter, 0);
         //System.out.println(pickScore);
     }
 
