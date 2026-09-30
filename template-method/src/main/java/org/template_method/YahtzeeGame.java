@@ -15,6 +15,9 @@ public class YahtzeeGame extends GameTemplate{
     int[] chanceR = {0, 1, 1, 1, 1, 1};
 
     Map<String, Integer> pickScore = new HashMap<>();
+    List<Integer> scoreList;
+    List<String> stringList;
+    int listN=1;
 
     ArrayList<Player> players = new ArrayList<>();
     ArrayList<Player> scoreBoard = new ArrayList<>();
@@ -29,6 +32,7 @@ public class YahtzeeGame extends GameTemplate{
 
     boolean badInput;
     String[] split;
+    int pick;
 
     @Override
     public void initGame(int playerCount) {
@@ -71,15 +75,35 @@ public class YahtzeeGame extends GameTemplate{
         System.out.println("\nChecking combinations...");
         countScore();
 
-        //TODO make player pick which score he wants?
-        System.out.println(pickScore);
-        score=0;
+        //print score options
+        listN=1;
         pickScore.forEach((k,v)->{
-            score+=v;
+            System.out.println(listN+": "+v+" points from "+k);
+            listN++;
         });
+
+        score=0;
+        scoreList = new ArrayList<>(pickScore.values());
+        stringList = new ArrayList<>(pickScore.keySet());
+        do {
+            System.out.println("Player"+players.get(player).getName()+", pick a score.");
+
+            ansW = scan.nextLine();
+            try {
+                pick=Integer.parseInt(ansW)-1;
+                score+=scoreList.get(pick);
+                badInput=false;
+            } catch (Throwable e) {
+                System.out.println("BAD INPUT, TRY AGAIN.\n");
+                badInput = true;
+            }
+        } while (badInput);
+        //TODO add actual Yahtzee score list(matrix) thing to store values in. Then have an actual end game state.
+
         pickScore.clear();
 
-        System.out.println( "Player "+players.get(player).getName()+"'s score: +"+(score+bonus)+
+        System.out.println( "Player "+players.get(player).getName()+"'s score: +"
+                            +(score+bonus)+" (from "+stringList.get(pick)+")"+
                             "\n(Enter anything to continue)");
         waitForInput();
 
@@ -290,7 +314,7 @@ public class YahtzeeGame extends GameTemplate{
     }
 
     public void printScoreBoard(){
-        //TODO Scoreboard dictates turn order. To change or not to change?
+        //Scoreboard dictates turn order. To change or not to change?
         bubbleSort(players);
         System.out.println("SCOREBOARD:");
         for (Player p : players) {
