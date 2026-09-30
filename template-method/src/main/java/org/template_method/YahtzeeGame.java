@@ -230,25 +230,8 @@ public class YahtzeeGame extends GameTemplate{
             }
         }
         //TODO change into a while loop to allow loop interruption? Is it necessary?
-        //TODO fix whatever's causing this this is vvvvv
-        /*
-             Rethrowing...
-            1. die: ⚄ (5)
-            2. die: ⚄ (5)
-            3. die: ⚁ (2) *
-            4. die: ⚄ (5)
-            5. die: ⚅ (6)
-
-            Checking combinations...
-            2's!
-            YAHTZEE!!!!
-            5's!
-            Three of a kind!
-            {5's=15, YAHTZEE!!!!=0, 2's=10, Three of a kind 4=23}
-            Player 1's score: +48
-            (Enter anything to continue)
-
-         */
+        //TODO clear counter properly.
+        // Why on earth does counter = clearList; make the lists identical instead overwriting counter with clearList???
         for (int i = 0; i < counter.length; i++) {
             if (counter[i]>2){
                 System.out.println((i+1)+"'s!");
