@@ -1,5 +1,7 @@
 package org.strategy;
 
+//Source: https://www.geeksforgeeks.org/dsa/bubble-sort-algorithm/
+
 public class BubbleSort implements SortingStrategy{
     @Override
     public long[] sort(long[] array){

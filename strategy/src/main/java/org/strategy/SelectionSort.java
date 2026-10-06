@@ -1,5 +1,7 @@
 package org.strategy;
 
+//Source: https://www.geeksforgeeks.org/dsa/selection-sort-algorithm-2/
+
 public class SelectionSort implements SortingStrategy{
     @Override
     public long[] sort(long[] array){

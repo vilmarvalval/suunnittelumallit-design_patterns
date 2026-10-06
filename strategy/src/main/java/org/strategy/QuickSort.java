@@ -1,5 +1,7 @@
 package org.strategy;
 
+//Source: https://www.geeksforgeeks.org/dsa/quick-sort-algorithm/
+
 public class QuickSort implements SortingStrategy {
     static int partition(long[] arr, int low, int high){
 
