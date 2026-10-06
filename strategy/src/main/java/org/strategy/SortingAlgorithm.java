@@ -28,11 +28,49 @@ public class SortingAlgorithm {
         Scanner scan = new Scanner(System.in);
         int size = 15_000;
         int range= 240_000;
+        String[] stringArr;
+        StringBuilder stringInt = new StringBuilder();
         System.out.println("Input array size: (ideally below 10 000 000)");
-        size= Integer.parseInt(scan.nextLine());
-        System.out.println("Input integer range: (ideally below 250 000 000)");
-        range = Integer.parseInt(scan.nextLine());
+        stringArr = scan.nextLine().split(" ");
+        for (String string : stringArr) {
+            try {
+                stringInt.append(string);
+                Integer.parseInt(String.valueOf(stringInt));
+            } catch (Throwable e){
+                System.out.println("Invalid string: '"+string+"', discarding...");
+                stringInt.setLength(stringInt.length() - 1);
+            }
 
+        }
+        size= Integer.parseInt(String.valueOf(stringInt));
+        System.out.println("Array size set to "+size);
+        stringInt.setLength(0);
+        if (size<1){
+            System.out.println("Array size must be at least 1. Overwriting...");
+            //size=1;
+        } else if (size>10_000_000) {
+            System.out.println("\n<<< WARNING:Array is massive! Sorting can take *very* long time and the program may even crash! >>>\n");
+        }
+
+        System.out.println("Input integer range: (ideally below 250 000 000)");
+        System.out.println("From 0 to..:");
+        stringArr = scan.nextLine().split(" ");
+        for (String s : stringArr) {
+            try {
+                stringInt.append(s);
+                Integer.parseInt(String.valueOf(stringInt));
+            } catch (Throwable e){
+                System.out.println("Invalid string: '"+s+"', discarding...");
+                stringInt.setLength(stringInt.length() - 1);
+            }
+        }
+        range = Integer.parseInt(String.valueOf(stringInt));
+        System.out.println("Array range set to 0-"+range);
+        if (range<1){
+            System.out.println("Array range must be at least 0-1. Overwriting...");
+            //range=1;
+        }
+        System.out.println("Saving array...");
         selected = randArray(size, range);
 
         copy = new long[size];
@@ -235,8 +273,14 @@ public class SortingAlgorithm {
         time = System.nanoTime();
         long[] result = sortHandler.sort(copy);
         wait = System.nanoTime()-time;
-        if (debug) System.out.println("Sort complete in "+wait+" nanoseconds.");
-        //if (debug) System.out.println(Arrays.toString(result));
+        if (debug) {
+            System.out.println("Sort complete in " + wait + " nanoseconds.");
+            if (copy.length<10_000_000){
+                System.out.println(Arrays.toString(result));
+            } else {
+                System.out.println("Array is too large to print.");
+            }
+        }
         return wait;
     }
 
