@@ -13,6 +13,8 @@
         <module>state</module>
         <module>composite</module>
         <module>template-method</module>
+        <module>strategy</module>
+        <module>chain_of_responsibility</module>
     </modules>
 
     <properties>
